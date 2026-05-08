@@ -1,0 +1,13 @@
+
+
+
+<h2>Register here.</h2>
+
+
+<form method="POSt">
+    {% csrf_token %}
+    
+    {{ form.as_p }}
+    <button type="submit">submit</button>
+    <a href="{% url "login" %}">cancel</a>
+</form>

@@ -1,0 +1,5 @@
+<form hx-post="{% url 'update_limit' limit.id %}" hx-swap="outerHTML" class="flex items-center gap-1">
+    {% csrf_token %}
+    <input type="number" name="limit_amount" class="input input-xs input-bordered w-20 bg-slate-50 border-primary" value="{{ limit.limit_amount }}" autofocus>
+    <button type="submit" class="btn btn-xs btn-primary">Save</button>
+</form>

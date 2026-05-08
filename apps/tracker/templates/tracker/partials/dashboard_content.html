@@ -1,0 +1,165 @@
+<div id="dashboard-container" 
+     class="max-w-7xl mx-auto space-y-8 pb-12"
+     hx-get="{% url 'dashboard_view' %}" 
+     hx-trigger="recordAdded from:body" 
+     hx-target="this" 
+     hx-swap="outerHTML">
+    
+    <!-- F-07: Money Overview Headers -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight text-center md:text-left uppercase">Dashboard</h1>
+            <div class="flex items-center justify-center md:justify-start gap-4 mt-1">
+                <p class="text-gray-500 text-sm font-medium">Monthly summary for {{ now|date:"F Y" }}</p>
+                <div class="flex items-center gap-2">
+                    <span class="badge badge-warning gap-1 font-black text-[10px] uppercase">
+                        {{ user.userprofile.total_points }} pts
+                    </span>
+                    <span class="badge badge-error gap-1 font-black text-white text-[10px] uppercase">
+                        {{ user.userprofile.current_streak }} day streak
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-3 w-full md:w-auto">
+            <button class="btn btn-primary shadow-lg w-full md:w-auto font-black tracking-widest uppercase" onclick="add_record_modal.showModal()">
+                Add Record
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Total Income</p>
+            <h3 class="text-3xl font-black text-green-600">₱{{ total_income }}</h3>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Total Expenses</p>
+            <h3 class="text-3xl font-black text-red-500">₱{{ total_expense }}</h3>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Remaining Balance</p>
+            <h3 class="text-3xl font-black text-slate-800">₱{{ balance }}</h3>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- F-07: Spending by Category Bar Chart -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Spending by Category</h2>
+            <div class="h-64 relative">
+                <canvas id="categoryChart" 
+                        data-labels='{{ cat_labels_json|safe }}' 
+                        data-values='{{ cat_data_json|safe }}'></canvas>
+            </div>
+        </div>
+
+        <!-- F-09: Needs/Wants/Savings Doughnut Chart -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Budget Breakdown</h2>
+            <div class="h-64 relative">
+                <canvas id="nwsChart" 
+                        data-labels='{{ nws_labels_json|safe }}' 
+                        data-values='{{ nws_data_json|safe }}'></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- F-08: Category Limits -->
+        <div class="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Monthly Limits</h2>
+            <div id="category-limits" hx-get="{% url 'category_limits' %}" hx-trigger="load">
+                <div class="flex justify-center p-8"><span class="loading loading-spinner loading-md"></span></div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-50">
+                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recent Transactions</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead class="bg-slate-50/50">
+                        <tr>
+                            <th class="text-slate-400 font-black text-[10px] uppercase tracking-widest">Date</th>
+                            <th class="text-slate-400 font-black text-[10px] uppercase tracking-widest">Category</th>
+                            <th class="text-slate-400 font-black text-[10px] uppercase tracking-widest">Note</th>
+                            <th class="text-right text-slate-400 font-black text-[10px] uppercase tracking-widest">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in recent_records %}
+                            {% include "tracker/partials/record_row.html" %}
+                        {% empty %}
+                            <tr><td colspan="4" class="text-center py-12 text-slate-400 font-bold uppercase text-xs tracking-tighter">No transactions yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            function initCharts() {
+                // Wait for Chart.js to be ready (it's in base.html)
+                if (typeof Chart === 'undefined') {
+                    setTimeout(initCharts, 50);
+                    return;
+                }
+
+                if (window.catChartObj) window.catChartObj.destroy();
+                if (window.nwsChartObj) window.nwsChartObj.destroy();
+
+                const catEl = document.getElementById('categoryChart');
+                if (catEl) {
+                    window.catChartObj = new Chart(catEl, {
+                        type: 'bar',
+                        data: {
+                            labels: JSON.parse(catEl.getAttribute('data-labels') || '[]'),
+                            datasets: [{
+                                data: JSON.parse(catEl.getAttribute('data-values') || '[]'),
+                                backgroundColor: '#3b82f6',
+                                borderRadius: 6,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: { 
+                                y: { beginAtZero: true, grid: { display: false }, ticks: { font: { weight: 'bold' } } },
+                                x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }
+                            }
+                        }
+                    });
+                }
+
+                const nwsEl = document.getElementById('nwsChart');
+                if (nwsEl) {
+                    window.nwsChartObj = new Chart(nwsEl, {
+                        type: 'doughnut',
+                        data: {
+                            labels: JSON.parse(nwsEl.getAttribute('data-labels') || '[]'),
+                            datasets: [{
+                                data: JSON.parse(nwsEl.getAttribute('data-values') || '[]'),
+                                backgroundColor: ['#3b82f6', '#fbbf24', '#22c55e'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold', size: 11 } } } },
+                            cutout: '70%'
+                        }
+                    });
+                }
+            }
+            initCharts();
+        })();
+    </script>
+</div>

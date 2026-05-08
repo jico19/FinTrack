@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="dashboard-container" class="max-w-7xl mx-auto space-y-8 pb-12">
+    <!-- F-11: Unusual Spending Alert -->
+    {% if spike_warning %}
+    <div class="alert alert-warning shadow-lg border-l-8 border-warning bg-amber-50 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6 text-warning" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <div>
+            <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Spending Spike Detected!</h3>
+            <div class="text-[10px] font-bold text-slate-500 uppercase mt-0.5">Current: ₱{{ total_expense }} | 3-mo Average: ₱{{ avg_past_spending }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- F-17: Weekly Recap Banner -->
+    {% if weekly_recap %}
+    <div class="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl shadow-xl p-8 text-white relative overflow-hidden mb-8">
+        <div class="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-white opacity-5 rounded-full"></div>
+        <div class="absolute bottom-0 left-0 -mb-12 -ml-12 w-48 h-48 bg-indigo-400 opacity-10 rounded-full"></div>
+        <div class="relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-indigo-500/30 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">Weekly Recap</span>
+                    <h2 class="text-3xl font-black tracking-tight mb-2">How was your last week?</h2>
+                    <p class="text-indigo-100 text-sm font-medium">Summary for {{ weekly_recap.start_date|date:"M d" }} - {{ weekly_recap.end_date|date:"M d" }}</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 text-center min-w-[120px]">
+                        <p class="text-[10px] text-indigo-200 uppercase font-black tracking-widest mb-1">Total Spent</p>
+                        <h4 class="text-xl font-black">₱{{ weekly_recap.total_spend }}</h4>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 text-center min-w-[120px]">
+                        <p class="text-[10px] text-indigo-200 uppercase font-black tracking-widest mb-1">Top Cat</p>
+                        <h4 class="text-xl font-black truncate max-w-[100px]">{{ weekly_recap.top_category }}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-white/10 flex flex-wrap gap-6 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.99 7.99 0 0121 13a8.003 8.003 0 01-3.343 5.657z" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-[9px] text-indigo-200 uppercase font-black tracking-widest">Active Streak</p>
+                        <p class="font-black">{{ weekly_recap.streak }} Days</p>
+                    </div>
+                </div>
+                {% if weekly_recap.new_badges %}
+                <div class="flex items-center gap-3">
+                    <div class="flex -space-x-3">
+                        {% for ub in weekly_recap.new_badges %}
+                        <div class="w-10 h-10 bg-white rounded-xl border-2 border-indigo-600 flex items-center justify-center shadow-md tooltip" data-tip="{{ ub.badge.name }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p class="text-sm font-bold text-indigo-100">{{ weekly_recap.new_badges.count }} New Badge{{ weekly_recap.new_badges.count|pluralize }}!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Alerts and Warnings -->
+    <div class="space-y-2 mb-8">
+        <!-- F-10: Savings Runway Warning -->
+        {% if runway_is_low %}
+        <div class="alert alert-error bg-red-50 border-red-200 shadow-sm border-l-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <div class="flex-1">
+                <p class="font-bold text-slate-800 text-xs uppercase tracking-tight">Runway Warning: You have less than 30 days of savings left!</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- F-16: Budget Category Warnings -->
+        {% if budget_warnings %}
+            {% for warning in budget_warnings %}
+            <div class="alert {% if warning.is_over %}alert-error bg-red-50 border-red-200{% else %}alert-warning bg-amber-50 border-amber-200{% endif %} shadow-sm border-l-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5 {% if warning.is_over %}text-red-600{% else %}text-amber-600{% endif %}" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <div class="flex-1">
+                    <p class="font-bold text-slate-800 text-xs uppercase tracking-tight">
+                        {% if warning.is_over %}
+                            Limit Exceeded: {{ warning.category }} is at {{ warning.percent }}%
+                        {% else %}
+                            Budget Warning: {{ warning.category }} is at {{ warning.percent }}%
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- F-07: Headers -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight uppercase">Dashboard</h1>
+            <div class="flex items-center gap-4 mt-1">
+                <p class="text-gray-500 text-sm font-medium">Monthly summary for {{ now|date:"F Y" }}</p>
+                <div class="flex items-center gap-2">
+                    <span class="badge badge-warning gap-1 font-black text-[10px] uppercase">{{ user.userprofile.total_points }} pts</span>
+                    <span class="badge {% if display_streak > 0 %}badge-error{% else %}badge-ghost bg-slate-100 text-slate-400{% endif %} gap-1 font-black text-[10px] uppercase">
+                        {{ display_streak }} day streak
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-3 w-full md:w-auto">
+            <a href="{% url 'manage_budgets' %}" class="btn btn-ghost border-slate-200 w-full md:w-auto font-black tracking-widest uppercase text-xs">Manage Budgets</a>
+            <button class="btn btn-primary shadow-lg w-full md:w-auto font-black tracking-widest uppercase" onclick="add_record_modal.showModal()">Add Record</button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Total Expenses</p>
+            <h3 class="text-2xl font-black text-red-500">₱{{ total_expense }}</h3>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Net Balance</p>
+            <h3 class="text-2xl font-black text-slate-800">₱{{ balance }}</h3>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
+            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Budget Remaining</p>
+            <h3 class="text-2xl font-black {% if budget_remaining < 0 %}text-red-600{% else %}text-blue-600{% endif %}">₱{{ budget_remaining }}</h3>
+            <div class="w-full bg-slate-100 h-1 mt-3 rounded-full overflow-hidden">
+                <div class="h-full {% if budget_percent > 90 %}bg-red-500{% else %}bg-blue-500{% endif %}" style="width: {{ budget_percent }}%"></div>
+            </div>
+            <p class="text-[9px] font-bold text-slate-400 uppercase mt-2">Goal: ₱{{ total_budget }}</p>
+        </div>
+        <div class="{% if runway_is_low %}bg-red-600 shadow-red-100{% else %}bg-blue-600 shadow-blue-100{% endif %} rounded-2xl shadow-xl p-6 text-white transition-colors duration-500">
+            <p class="text-[10px] {% if runway_is_low %}text-red-100{% else %}text-blue-100{% endif %} uppercase font-black tracking-widest mb-1">Savings Runway</p>
+            <h3 class="text-2xl font-black">{{ runway_days }} Days</h3>
+        </div>
+    </div>
+
+    <!-- Daily Spending Trend -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Daily Spending Trend</h2>
+            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded uppercase tracking-tighter">Current Month</span>
+        </div>
+        <div class="h-64 md:h-80 w-full relative"><canvas id="trendChart" data-labels='{{ daily_labels_json|safe }}' data-values='{{ daily_data_json|safe }}'></canvas></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Spending by Category</h2>
+            <div class="h-64 relative"><canvas id="categoryChart" data-labels='{{ cat_labels_json|safe }}' data-values='{{ cat_data_json|safe }}'></canvas></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Budget Breakdown (50/30/20 Rule)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
+                <div class="h-64 relative"><canvas id="nwsChart" data-labels='{{ nws_labels_json|safe }}' data-values='{{ nws_data_json|safe }}'></canvas></div>
+                <div class="space-y-4">
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-black text-blue-600 uppercase">Needs</span>
+                            <span class="text-xs font-bold text-slate-700">{{ nws_percents.0 }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-blue-600 h-full" style="width: {{ nws_percents.0 }}%"></div>
+                        </div>
+                        <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase italic">Goal: 50%</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-black text-amber-500 uppercase">Wants</span>
+                            <span class="text-xs font-bold text-slate-700">{{ nws_percents.1 }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-amber-500 h-full" style="width: {{ nws_percents.1 }}%"></div>
+                        </div>
+                        <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase italic">Goal: 30%</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-black text-green-600 uppercase">Savings</span>
+                            <span class="text-xs font-bold text-slate-700">{{ nws_percents.2 }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-green-600 h-full" style="width: {{ nws_percents.2 }}%"></div>
+                        </div>
+                        <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase italic">Goal: 20%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- F-11: Coach Gemini AI Chatbot -->
+        <div class="lg:col-span-1 space-y-8">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 scale-150"></div>
+                <div id="ai-chatbot-container" 
+                     hx-get="{% url 'chatbot_view' %}" 
+                     hx-trigger="load"
+                     class="relative z-10">
+                    <div class="flex items-center gap-4 animate-pulse">
+                        <div class="w-10 h-10 bg-slate-100 rounded-xl"></div>
+                        <div class="space-y-2 flex-1">
+                            <div class="h-2 bg-slate-100 rounded w-1/2"></div>
+                            <div class="h-2 bg-slate-100 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
+                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Monthly Limits</h2>
+                <div class="space-y-6">
+                    {% for item in limits %}
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="font-bold text-slate-700 uppercase tracking-tighter">{{ item.category.name }}</span>
+                            <div id="limit-display-{{ item.id }}" hx-get="{% url 'update_limit' item.id %}" hx-trigger="click" class="cursor-pointer hover:bg-slate-50 px-2 py-1 rounded transition-colors text-slate-800 font-bold border-b-2 border-slate-100 border-dotted">₱{{ item.limit }}</div>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden"><div class="h-full rounded-full transition-all duration-500 {% if item.percent >= 100 %}bg-red-500{% elif item.percent >= 80 %}bg-amber-400{% else %}bg-primary{% endif %}" style="width: {{ item.percent }}%"></div></div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-8 border-b border-slate-50 flex justify-between items-center">
+                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recent Transactions</h2>
+                <a href="{% url 'record_list' %}" class="text-[10px] font-black text-blue-600 hover:text-blue-800 uppercase tracking-widest">View All →</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead class="bg-slate-50/50"><tr><th class="text-slate-400 font-black text-[10px] uppercase tracking-widest py-4">Date</th><th class="text-slate-400 font-black text-[10px] uppercase tracking-widest py-4">Category</th><th class="text-slate-400 font-black text-[10px] uppercase tracking-widest py-4">Note</th><th class="text-right text-slate-400 font-black text-[10px] uppercase tracking-widest py-4">Amount</th></tr></thead>
+                    <tbody>
+                        {% for record in recent_records %} {% include "tracker/partials/record_row.html" %}
+                        {% empty %} <tr><td colspan="4" class="text-center py-12 text-slate-400 font-bold uppercase text-xs">No transactions yet.</td></tr> {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <dialog id="add_record_modal" class="modal">
+        <div class="modal-box bg-white rounded-2xl border border-slate-100 shadow-2xl">
+            <div class="flex justify-between items-center mb-6"><h3 class="font-black text-xl text-slate-800 tracking-tight uppercase">New Transaction</h3><form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form></div>
+            <div id="add-record-form-container" hx-get="{% url 'add_record' %}" hx-trigger="load"><div class="flex justify-center p-8"><span class="loading loading-spinner loading-md"></span></div></div>
+        </div>
+        <form method="dialog" class="modal-backdrop bg-slate-900/30 backdrop-blur-sm"><button>close</button></form>
+    </dialog>
+    <dialog id="edit_record_modal" class="modal">
+        <div class="modal-box bg-white rounded-2xl border border-slate-100 shadow-2xl">
+            <div class="flex justify-between items-center mb-6"><h3 class="font-black text-xl text-slate-800 tracking-tight uppercase">Edit Transaction</h3><form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form></div>
+            <div id="edit-record-form-container"><div class="flex justify-center p-8"><span class="loading loading-spinner loading-md"></span></div></div>
+        </div>
+        <form method="dialog" class="modal-backdrop bg-slate-900/30 backdrop-blur-sm"><button>close</button></form>
+    </dialog>
+
+    <script>
+        (function() {
+            function initCharts() {
+                if (typeof Chart === 'undefined') { setTimeout(initCharts, 50); return; }
+                if (window.catChartObj) window.catChartObj.destroy();
+                if (window.nwsChartObj) window.nwsChartObj.destroy();
+                if (window.trendChartObj) window.trendChartObj.destroy();
+
+                const catEl = document.getElementById('categoryChart');
+                if (catEl) {
+                    window.catChartObj = new Chart(catEl, {
+                        type: 'bar',
+                        data: {
+                            labels: JSON.parse(catEl.getAttribute('data-labels') || '[]'),
+                            datasets: [{ data: JSON.parse(catEl.getAttribute('data-values') || '[]'), backgroundColor: '#3b82f6', borderRadius: 6 }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
+                    });
+                }
+
+                const nwsEl = document.getElementById('nwsChart');
+                if (nwsEl) {
+                    window.nwsChartObj = new Chart(nwsEl, {
+                        type: 'doughnut',
+                        data: {
+                            labels: JSON.parse(nwsEl.getAttribute('data-labels') || '[]'),
+                            datasets: [{ data: JSON.parse(nwsEl.getAttribute('data-values') || '[]'), backgroundColor: ['#3b82f6', '#fbbf24', '#22c55e'], borderWidth: 0 }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold', size: 11 } } } }, cutout: '70%' }
+                    });
+                }
+
+                const trendEl = document.getElementById('trendChart');
+                if (trendEl) {
+                    const ctx = trendEl.getContext('2d');
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                    window.trendChartObj = new Chart(trendEl, {
+                        type: 'line',
+                        data: {
+                            labels: JSON.parse(trendEl.getAttribute('data-labels') || '[]'),
+                            datasets: [{ label: 'Daily Spending', data: JSON.parse(trendEl.getAttribute('data-values') || '[]'), borderColor: '#3b82f6', backgroundColor: gradient, fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: '#3b82f6', pointBorderWidth: 2 }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } }
+                    });
+                }
+            }
+            initCharts();
+            document.body.addEventListener('recordAdded', function() {
+                if (typeof add_record_modal !== 'undefined') add_record_modal.close();
+                if (typeof edit_record_modal !== 'undefined') edit_record_modal.close();
+                window.location.reload();
+            });
+        })();
+    </script>
+</div>
+{% endblock %}

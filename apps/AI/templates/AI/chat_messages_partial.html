@@ -1,0 +1,26 @@
+{% for msg in messages %}
+    <div class="flex {% if msg.role == 'user' %}justify-end{% else %}justify-start{% endif %}">
+        <div class="max-w-[85%] rounded-2xl p-3 shadow-sm text-sm font-medium break-words
+            {% if msg.role == 'user' %}
+                bg-blue-600 text-white rounded-tr-none
+            {% else %}
+                bg-slate-100 text-slate-700 rounded-tl-none border border-slate-200
+            {% endif %}">
+            <div class="prose prose-sm max-w-none">
+                {{ msg.content_html }}
+            </div>
+            <p class="text-[8px] mt-2 opacity-50 uppercase font-black">
+                {{ msg.created_at|date:"H:i" }}
+            </p>
+        </div>
+    </div>
+{% empty %}
+    <div class="flex flex-col items-center justify-center h-full text-center p-8 space-y-4">
+        <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.003 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+        </div>
+        <p class="text-xs font-black text-slate-300 uppercase tracking-widest leading-relaxed">No messages yet.<br>Ask me about your budget!</p>
+    </div>
+{% endfor %}

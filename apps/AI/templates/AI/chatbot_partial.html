@@ -1,0 +1,81 @@
+<div class="flex flex-col h-[500px]">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <div>
+                <h4 class="font-black text-slate-800 text-sm uppercase tracking-tight">Coach Gemini</h4>
+                <p class="text-[9px] font-bold text-green-500 uppercase tracking-widest animate-pulse">Online & Analyzing</p>
+            </div>
+        </div>
+        <form hx-post="{% url 'clear_chat' %}" hx-target="#chat-messages-container" hx-confirm="Clear conversation history?">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-ghost btn-xs text-slate-400 font-bold uppercase tracking-widest text-[9px]">Reset</button>
+        </form>
+    </div>
+
+    <!-- Messages Area -->
+    <div id="chat-messages-container" class="flex-1 overflow-y-auto mb-4 space-y-4 pr-2 custom-scrollbar">
+        {% include "AI/chat_messages_partial.html" %}
+    </div>
+
+    <!-- Input Area -->
+    <form hx-post="{% url 'send_message' %}" 
+          hx-target="#chat-messages-container" 
+          hx-indicator="#chat-indicator"
+          hx-on::after-request="this.reset()"
+          class="relative">
+        {% csrf_token %}
+        <input type="text" name="message" id="chat-input" placeholder="Ask about your budget..." 
+               class="input input-bordered w-full bg-slate-50 border-slate-100 font-bold text-slate-700 pr-12 focus:border-blue-600 focus:ring-0 text-sm h-12 rounded-2xl shadow-inner">
+        
+        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 btn btn-primary btn-sm btn-square rounded-xl shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+        </button>
+
+        <!-- Loading Indicator -->
+        <div id="chat-indicator" class="htmx-indicator absolute -top-8 left-0 right-0 flex justify-center">
+            <div class="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg animate-bounce">
+                Coach is thinking...
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+</style>
+
+<script>
+    document.body.addEventListener('chatCleared', function() {
+        document.getElementById('chat-messages-container').innerHTML = '';
+    });
+    
+    // Auto-scroll to bottom function
+    function scrollToBottom() {
+        const container = document.getElementById('chat-messages-container');
+        if (container) {
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    // Scroll on load and on any new messages
+    scrollToBottom();
+    const observer = new MutationObserver(scrollToBottom);
+    const msgContainer = document.getElementById('chat-messages-container');
+    if (msgContainer) {
+        observer.observe(msgContainer, { childList: true });
+    }
+</script>

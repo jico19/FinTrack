@@ -1,0 +1,23 @@
+<div class="space-y-6">
+    {% for item in limits %}
+    <div class="space-y-2">
+        <div class="flex justify-between items-center text-sm">
+            <span class="font-bold text-slate-700 uppercase tracking-tighter">{{ item.category.name }}</span>
+            <div id="limit-display-{{ item.id }}" 
+                 hx-get="{% url 'update_limit' item.id %}" 
+                 hx-trigger="click" 
+                 class="cursor-pointer hover:bg-slate-50 px-2 py-1 rounded transition-colors text-slate-800 font-bold border-b-2 border-slate-100 border-dotted">
+                ₱{{ item.limit }}
+            </div>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500 {% if item.percent >= 100 %}bg-red-500{% elif item.percent >= 80 %}bg-amber-400{% else %}bg-primary{% endif %}" 
+                 style="width: {{ item.percent }}%"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+            <span>Spent: ₱{{ item.spent }}</span>
+            <span>{{ item.percent|floatformat:0 }}% used</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>

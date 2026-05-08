@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-extrabold text-gray-900 uppercase tracking-tight">Edit Profile</h1>
+            <p class="mt-2 text-sm text-gray-600">Update your personal information and profile picture.</p>
+        </div>
+
+        <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+            <div class="p-8">
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+
+                    <!-- Profile Picture -->
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-black text-slate-400 uppercase tracking-widest text-[10px]">Profile Picture</span>
+                        </label>
+                        <div class="mt-1 flex items-center space-x-5">
+                            {% if object.profile_pic %}
+                                <img src="{{ object.profile_pic.url }}" class="h-16 w-16 rounded-2xl object-cover border-2 border-blue-600 shadow-lg">
+                            {% else %}
+                                <div class="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            {{ form.profile_pic }}
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-black text-slate-400 uppercase tracking-widest text-[10px]">Bio</span>
+                        </label>
+                        {{ form.bio }}
+                        <label class="label">
+                            <span class="label-text-alt text-slate-400">Tell us a bit about your financial goals.</span>
+                        </label>
+                    </div>
+
+                    <!-- Budget -->
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-black text-slate-400 uppercase tracking-widest text-[10px]">Monthly Budget Goal (₱)</span>
+                        </label>
+                        {{ form.budget }}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button type="submit" class="btn btn-primary flex-1 font-black tracking-widest uppercase shadow-lg shadow-blue-200">
+                            Save Changes
+                        </button>
+                        <a href="{% url 'profile_view' request.user.pk %}" class="btn btn-ghost border-slate-200 flex-1 text-slate-500 uppercase font-black tracking-widest">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

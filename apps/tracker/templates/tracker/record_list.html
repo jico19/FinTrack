@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-8 pb-12">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight uppercase">Transaction History</h1>
+            <p class="text-gray-500 text-sm font-medium mt-1">View, search, and filter your financial records.</p>
+        </div>
+        <div class="flex gap-3 w-full md:w-auto">
+            <button class="btn btn-primary shadow-lg w-full md:w-auto font-black tracking-widest uppercase" onclick="add_record_modal.showModal()">
+                Add Record
+            </button>
+        </div>
+    </div>
+
+    <!-- F-05: Filter Controls -->
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+        <form hx-get="{% url 'record_list' %}" 
+              hx-target="#records-table-container" 
+              hx-trigger="keyup from:#search-input delay:500ms, change from:.filter-input"
+              class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            
+            <div class="form-control w-full">
+                <label class="label pb-1">
+                    <span class="label-text font-black text-slate-400 uppercase tracking-widest text-[9px]">Search Records</span>
+                </label>
+                <div class="relative">
+                    <input type="text" id="search-input" name="search" placeholder="Note/Cat..." class="input input-bordered w-full bg-slate-50 border-slate-100 font-bold text-slate-700 pl-10 focus:border-blue-600 focus:ring-0 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label pb-1">
+                    <span class="label-text font-black text-slate-400 uppercase tracking-widest text-[9px]">Category</span>
+                </label>
+                <select name="category" class="filter-input select select-bordered w-full bg-slate-50 border-slate-100 font-bold text-slate-700 focus:border-blue-600 focus:ring-0 text-sm">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label pb-1">
+                    <span class="label-text font-black text-slate-400 uppercase tracking-widest text-[9px]">Type</span>
+                </label>
+                <select name="type" class="filter-input select select-bordered w-full bg-slate-50 border-slate-100 font-bold text-slate-700 focus:border-blue-600 focus:ring-0 text-sm">
+                    <option value="">All Types</option>
+                    {% for val, label in types %}
+                        <option value="{{ val }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label pb-1">
+                    <span class="label-text font-black text-slate-400 uppercase tracking-widest text-[9px]">From</span>
+                </label>
+                <input type="date" name="start_date" class="filter-input input input-bordered w-full bg-slate-50 border-slate-100 font-bold text-slate-700 focus:border-blue-600 focus:ring-0 text-sm">
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label pb-1">
+                    <span class="label-text font-black text-slate-400 uppercase tracking-widest text-[9px]">To</span>
+                </label>
+                <input type="date" name="end_date" class="filter-input input input-bordered w-full bg-slate-50 border-slate-100 font-bold text-slate-700 focus:border-blue-600 focus:ring-0 text-sm">
+            </div>
+        </form>
+    </div>
+
+    <!-- Records Table Container -->
+    <div id="records-table-container" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        {% include "tracker/partials/record_list_table.html" %}
+    </div>
+</div>
+
+<!-- F-03: Modal for Add Record -->
+<dialog id="add_record_modal" class="modal">
+    <div class="modal-box bg-white rounded-2xl border border-slate-100 shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-black text-xl text-slate-800 tracking-tight uppercase">New Transaction</h3>
+            <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form>
+        </div>
+        <div id="add-record-form-container" hx-get="{% url 'add_record' %}" hx-trigger="load">
+             <div class="flex justify-center p-8"><span class="loading loading-spinner loading-md"></span></div>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop bg-slate-900/30 backdrop-blur-sm"><button>close</button></form>
+</dialog>
+
+<!-- F-04: Modal for Edit Record -->
+<dialog id="edit_record_modal" class="modal">
+    <div class="modal-box bg-white rounded-2xl border border-slate-100 shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-black text-xl text-slate-800 tracking-tight uppercase">Edit Transaction</h3>
+            <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form>
+        </div>
+        <div id="edit-record-form-container">
+             <div class="flex justify-center p-8"><span class="loading loading-spinner loading-md"></span></div>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop bg-slate-900/30 backdrop-blur-sm"><button>close</button></form>
+</dialog>
+
+<script>
+    document.body.addEventListener('recordAdded', function() {
+        if (typeof add_record_modal !== 'undefined') add_record_modal.close();
+        if (typeof edit_record_modal !== 'undefined') edit_record_modal.close();
+        window.location.reload();
+    });
+</script>
+{% endblock %}

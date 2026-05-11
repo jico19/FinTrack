@@ -1,5 +1,6 @@
 import json
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
@@ -38,13 +39,13 @@ def dashboard(request):
     for cat in categories:
         amt = month_records.filter(category=cat, spending_type=BudgetRecord.Type.EXPENSE).aggregate(Sum('amount'))['amount__sum'] or 0
         if amt > 0:
-            cat_labels.append(cat.name); cat_data.append(amt)
+            cat_labels.append(cat.name); cat_data.append(float(amt))
 
     nws_labels = ["Needs", "Wants", "Savings"]
     nws_data = [
-        month_records.filter(category__classification=Category.Classification.NEED, spending_type=BudgetRecord.Type.EXPENSE).aggregate(Sum('amount'))['amount__sum'] or 0,
-        month_records.filter(category__classification=Category.Classification.WANT, spending_type=BudgetRecord.Type.EXPENSE).aggregate(Sum('amount'))['amount__sum'] or 0,
-        month_records.filter(category__classification=Category.Classification.SAVING).aggregate(Sum('amount'))['amount__sum'] or 0,
+        float(month_records.filter(category__classification=Category.Classification.NEED, spending_type=BudgetRecord.Type.EXPENSE).aggregate(Sum('amount'))['amount__sum'] or 0),
+        float(month_records.filter(category__classification=Category.Classification.WANT, spending_type=BudgetRecord.Type.EXPENSE).aggregate(Sum('amount'))['amount__sum'] or 0),
+        float(month_records.filter(category__classification=Category.Classification.SAVING).aggregate(Sum('amount'))['amount__sum'] or 0),
     ]
     
     total_nws = sum(nws_data)
@@ -53,7 +54,7 @@ def dashboard(request):
     daily_labels, daily_data = [], []
     for day in range(1, today.day + 1):
         daily_labels.append(f"{calendar.month_abbr[today.month]} {day}")
-        daily_data.append(month_records.filter(date__day=day, spending_type=BudgetRecord.Type.EXPENSE).aggregate(Sum('amount'))['amount__sum'] or 0)
+        daily_data.append(float(month_records.filter(date__day=day, spending_type=BudgetRecord.Type.EXPENSE).aggregate(Sum('amount'))['amount__sum'] or 0))
 
     days_passed = today.day
     daily_burn_rate = expense / days_passed if days_passed > 0 else 0
@@ -107,13 +108,22 @@ def add_record(request):
     if request.method == "POST":
         spending_type = request.POST.get('type')
         category_id = request.POST.get('category')
+        amount = request.POST.get('amount')
+        
+        # Basic validation
+        if not amount or float(amount) <= 0:
+            return HttpResponse("Invalid amount", status=400)
+
         if spending_type == 'INCOME':
             category, _ = Category.objects.get_or_create(name="Income", classification='INCOME')
         else:
+            if not category_id:
+                return HttpResponse("Category required for expenses", status=400)
             category = get_object_or_404(Category, id=category_id)
+            
         BudgetRecord.objects.create(
             user=request.user, spending_type=spending_type,
-            category=category, amount=request.POST.get('amount'),
+            category=category, amount=amount,
             note=request.POST.get('note'), date=request.POST.get('date') or date.today()
         )
         update_user_gamification(request.user)
@@ -135,11 +145,17 @@ def edit_record(request, record_id):
     record = get_object_or_404(BudgetRecord, id=record_id, user=request.user)
     if request.method == "POST":
         spending_type = request.POST.get('type')
+        amount = request.POST.get('amount')
+        
+        if not amount or float(amount) <= 0:
+            return HttpResponse("Invalid amount", status=400)
+
         if spending_type == 'INCOME':
             category, _ = Category.objects.get_or_create(name="Income", classification='INCOME')
         else:
             category = get_object_or_404(Category, id=request.POST.get('category'))
-        record.amount, record.spending_type, record.category = request.POST.get('amount'), spending_type, category
+        
+        record.amount, record.spending_type, record.category = amount, spending_type, category
         record.date, record.note = request.POST.get('date'), request.POST.get('note')
         record.save()
         return HttpResponse("", headers={"HX-Trigger": "recordAdded"})
@@ -172,18 +188,47 @@ def update_limit(request, limit_id):
     profile = request.user.userprofile
     income, _, _ = get_monthly_summary(request.user, limit_obj.month.year, limit_obj.month.month)
     total_available = profile.budget + income
+    
+    error = None
     if request.method == "POST":
-        new_limit = int(request.POST.get('limit_amount', 0))
-        other_limits_sum = CategoryLimit.objects.filter(user=request.user, month=limit_obj.month).exclude(id=limit_id).aggregate(Sum('limit_amount'))['limit_amount__sum'] or 0
-        if (other_limits_sum + new_limit) > total_available:
-            if request.headers.get('HX-Request'):
-                return HttpResponse(f"<span class='text-red-500 text-xs font-bold'>Max ₱{total_available}</span>", headers={"HX-Trigger": "allocationError"})
-            return redirect('manage_budgets')
-        limit_obj.limit_amount = new_limit
-        limit_obj.save()
-        if request.headers.get('HX-Request'): return HttpResponse(f"₱{new_limit}", headers={"HX-Trigger": "recordAdded"})
-        return redirect('manage_budgets')
-    return render(request, 'tracker/partials/limit_edit_form.html', {'limit': limit_obj})
+        try:
+            new_limit = float(request.POST.get('limit_amount', 0))
+            other_limits_sum = CategoryLimit.objects.filter(user=request.user, month=limit_obj.month).exclude(id=limit_id).aggregate(Sum('limit_amount'))['limit_amount__sum'] or 0
+            
+            if (other_limits_sum + new_limit) > total_available:
+                error = f"Total limits cannot exceed your monthly budget (₱{total_available})"
+            else:
+                limit_obj.limit_amount = new_limit
+                limit_obj.save()
+                if request.headers.get('HX-Request'): 
+                    return HttpResponse(f"₱{new_limit}", headers={"HX-Trigger": "recordAdded"})
+                return redirect('manage_budgets')
+        except (ValueError, TypeError):
+            error = "Invalid limit amount"
+
+    if error and request.headers.get('HX-Request'):
+         return HttpResponse(f"<div hx-get=\"{reverse_lazy('update_limit', kwargs={'limit_id': limit_id})}\" hx-trigger=\"click\" class=\"cursor-pointer text-red-500 text-[10px] font-bold uppercase tracking-tighter\">{error}</div>", headers={"HX-Trigger": "allocationError"})
+
+    return render(request, 'tracker/partials/limit_edit_form.html', {'limit': limit_obj, 'error': error})
+
+@login_required
+def category_limits(request):
+    """
+    Partial view for category limits progress bars.
+    """
+    today = date.today()
+    month_start = today.replace(day=1)
+    categories = Category.objects.exclude(classification='INCOME')
+    month_records = BudgetRecord.objects.filter(user=request.user, date__year=today.year, date__month=today.month).select_related('category')
+    
+    limits_data = []
+    for cat in categories:
+        limit_obj, _ = CategoryLimit.objects.get_or_create(user=request.user, category=cat, month=month_start)
+        spent = month_records.filter(category=cat, spending_type=BudgetRecord.Type.EXPENSE).aggregate(Sum('amount'))['amount__sum'] or 0
+        percent = (spent / limit_obj.limit_amount * 100) if limit_obj.limit_amount > 0 else (100 if spent > 0 else 0)
+        limits_data.append({'category': cat, 'limit': limit_obj.limit_amount, 'spent': spent, 'percent': min(percent, 100), 'id': limit_obj.id})
+    
+    return render(request, 'tracker/partials/category_limits.html', {'limits': limits_data})
 
 @login_required
 def manage_budgets(request):

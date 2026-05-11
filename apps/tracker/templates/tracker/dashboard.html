@@ -193,10 +193,10 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- F-11: Coach Gemini AI Chatbot -->
+        <!-- F-11: Minto AI Chatbot -->
         <div class="lg:col-span-1 space-y-8">
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 relative overflow-hidden group">
-                <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 scale-150"></div>
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 scale-150"></div>
                 <div id="ai-chatbot-container" 
                      hx-get="{% url 'chatbot_view' %}" 
                      hx-trigger="load"
@@ -226,17 +226,39 @@
             </div>
         </div>
 
-        <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-8 border-b border-slate-50 flex justify-between items-center">
-                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recent Transactions</h2>
-                <a href="{% url 'record_list' %}" class="text-[10px] font-black text-blue-600 hover:text-blue-800 uppercase tracking-widest">View All →</a>
+        <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+            <div class="p-8 border-b border-slate-50 flex justify-between items-center bg-white">
+                <div>
+                    <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Recent Transactions</h2>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">Your latest financial activity</p>
+                </div>
+                <a href="{% url 'record_list' %}" class="btn btn-ghost btn-xs text-blue-600 hover:bg-blue-50 font-black tracking-widest uppercase py-2 h-auto">View All Activity →</a>
             </div>
-            <div class="overflow-x-auto">
-                <table class="table w-full">
-                    <thead class="bg-slate-50/50"><tr><th class="text-slate-400 font-black text-[10px] uppercase tracking-widest py-4">Date</th><th class="text-slate-400 font-black text-[10px] uppercase tracking-widest py-4">Category</th><th class="text-slate-400 font-black text-[10px] uppercase tracking-widest py-4">Note</th><th class="text-right text-slate-400 font-black text-[10px] uppercase tracking-widest py-4">Amount</th></tr></thead>
-                    <tbody>
-                        {% for record in recent_records %} {% include "tracker/partials/record_row.html" %}
-                        {% empty %} <tr><td colspan="4" class="text-center py-12 text-slate-400 font-bold uppercase text-xs">No transactions yet.</td></tr> {% endfor %}
+            <div class="overflow-x-auto flex-1">
+                <table class="table w-full border-separate border-spacing-0">
+                    <thead>
+                        <tr class="bg-slate-50/50">
+                            <th class="text-slate-400 font-black text-[9px] uppercase tracking-[0.2em] py-5 px-8 border-b border-slate-100">Date</th>
+                            <th class="text-slate-400 font-black text-[9px] uppercase tracking-[0.2em] py-5 border-b border-slate-100">Category & Type</th>
+                            <th class="text-slate-400 font-black text-[9px] uppercase tracking-[0.2em] py-5 border-b border-slate-100">Memo</th>
+                            <th class="text-right text-slate-400 font-black text-[9px] uppercase tracking-[0.2em] py-5 px-8 border-b border-slate-100">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        {% for record in recent_records %} 
+                            {% include "tracker/partials/record_row.html" %}
+                        {% empty %} 
+                            <tr>
+                                <td colspan="4" class="text-center py-20">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-200">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                                        </div>
+                                        <p class="text-xs font-black text-slate-300 uppercase tracking-widest leading-relaxed">No transactions found.<br>Log your first expense to start tracking!</p>
+                                    </div>
+                                </td>
+                            </tr> 
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

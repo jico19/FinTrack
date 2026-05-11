@@ -3,3 +3,5 @@ from . import models
 
 
 admin.site.register(models.BudgetRecord)
+admin.site.register(models.Category)
+admin.site.register(models.CategoryLimit)

@@ -14,7 +14,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_pic = models.ImageField(upload_to='profile/', null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
-    budget = models.PositiveIntegerField(default=0)
+    budget = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_points = models.PositiveIntegerField(default=0)
     current_streak = models.PositiveIntegerField(default=0)
     best_streak = models.PositiveIntegerField(default=0)

@@ -8,5 +8,6 @@ urlpatterns = [
     path('edit-record/<int:record_id>/', views.edit_record, name='edit_record'),
     path('delete-record/<int:record_id>/', views.delete_record, name='delete_record'),
     path('update-limit/<int:limit_id>/', views.update_limit, name='update_limit'),
+    path('category-limits/', views.category_limits, name='category_limits'),
     path('manage-budgets/', views.manage_budgets, name='manage_budgets'),
 ]

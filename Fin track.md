@@ -1,5 +1,7 @@
 **FinTrack** is a personal money tracker for people who want to know where their money goes. Users write down what they earn and spend each day, sort it into categories, and see a clear picture of their finances on one page.
 
+sample: AIzaSyCsO7YMmD8_3yk_kCT4mj6q0tBR8T6a4I4
+
 To make it more fun, FinTrack has a rewards system where users earn points for logging money regularly, collect badges for reaching goals, and keep a daily streak going — making it feel good to stay on top of your budget.
 
 **1\. Accounts**

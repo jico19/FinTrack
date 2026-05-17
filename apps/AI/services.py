@@ -108,7 +108,7 @@ def get_coach_response(user, user_message):
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 temperature=0.6,
-                max_output_tokens=1000,
+                max_output_tokens=1500,
             )
         )
         

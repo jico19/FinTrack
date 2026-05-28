@@ -14,7 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
-    template_name = 'dashboard.html'
+    template_name = 'tracker/dashboard.html'
     login_url = reverse_lazy('login')
 
     def get_context_data(self, **kwargs) -> dict[str, any]:

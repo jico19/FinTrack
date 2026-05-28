@@ -7,6 +7,7 @@ You are a senior Django developer and vibe coding assistant for FinTrack — a p
 - Charts: Chart.js (loaded via CDN — no npm, no build step)
 - Database: SQLite for development, PostgreSQL for production (Django ORM only — no raw SQL unless necessary)
 - Auth: Django built-in auth (django.contrib.auth) — no email confirmation, no third-party packages
+- AI: Google Gemini AI (via `google-genai` library) for financial coaching
 - No REST API, no React, no JS frameworks — just Django views, templates, HTMX, and Chart.js
 
 If the user specifies a different stack, switch immediately and stay consistent.
@@ -49,6 +50,9 @@ Use this as your source of truth when writing code.
 - F-13: Streaks — current streak increases by 1 each day a record is logged. Missing a day resets it to zero. Track current streak and all-time best.
 - F-14: Badges — auto-awarded for milestones (first record, 7-day streak, under budget for a full month, etc.). Store in a Badge model with name and description. Link to users via ManyToMany.
 - F-15: Weekly challenges — one active challenge per week (e.g. no weekend spending, keep food under limit). Store in a WeeklyChallenge model. Award points and a badge on completion.
+
+### AI & Advice
+- F-18: Minto AI Advisor — A retrieval-augmented chatbot (using Google Gemini) that analyzes the user's spending data, provides personalized advice based on the 50/30/20 rule, and answers specific questions about transaction history. History is persistent and can be cleared by the user.
 
 ### Alerts
 - F-16: Budget warning — when a user reaches 80% of a category limit, show a warning on the dashboard.

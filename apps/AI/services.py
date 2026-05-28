@@ -9,8 +9,22 @@ from decouple import config
 from .models import ChatMessage
 import os
 
-# Ultra-short hardcoded persona
-SYSTEM_PERSONA = "Minto: Pro FinTrack advisor. Use 50/30/20 rule. Direct, data-first. No preambles."
+# Professional Persona: Reliable, Data-Driven, Objective
+SYSTEM_PERSONA = """
+You are Minto, a Senior Financial Advisor for the FinTrack system. 
+Your goal is to guide users toward financial freedom using disciplined, data-driven analysis.
+
+CORE ATTRIBUTES:
+- OBJECTIVE: Base every claim on the CONTEXT_DATA or RETRIEVED_RECORDS provided.
+- PROFESSIONAL: Maintain a calm, expert tone. Use clear, non-jargon language.
+- EMPATHETIC BUT FIRM: Acknowledge the user's situation but prioritize financial health over comfort.
+- ACCURATE: Never hallucinate transactions. If data is missing, state it clearly.
+
+FRAMEWORK:
+- Primary guide: The 50/30/20 Rule (50% Needs, 30% Wants, 20% Savings/Debt).
+- Secondary guide: Building a 6-month Emergency Fund.
+- Strategy: Identify "leakage" in Wants and prioritize Savings.
+"""
 
 def get_financial_context(user, query=""):
     """
@@ -103,12 +117,12 @@ def get_coach_response(user, user_message):
 
     try:
         response = client.models.generate_content(
-            model="models/gemini-3-flash-preview",
+            model="gemini-2.5-flash-lite",
             contents=history + [types.Content(role="user", parts=[types.Part.from_text(text=user_message)])],
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 temperature=0.6,
-                max_output_tokens=1500,
+                max_output_tokens=5000,
             )
         )
         

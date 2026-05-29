@@ -1,29 +1,28 @@
-<nav class="flex items-center p-6 justify-between bg-white border-b border-gray-100 sticky top-0 z-50">
-    <div class="flex items-center gap-2">
-        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+<nav class="sticky top-0 z-50 border-b border-[#ded9cb] bg-[#17211b]/95 text-white backdrop-blur">
+    <div class="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-3 md:px-8">
+        <a href="{% if user.is_authenticated %}{% url 'dashboard_view' %}{% else %}{% url 'login' %}{% endif %}" class="flex items-center gap-3">
+            <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#d8f3dc] text-[#17211b]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19V5m0 14h16M8 16v-5m4 5V8m4 8v-7" />
+                </svg>
+            </span>
+            <div class="leading-tight">
+                <span class="block text-base font-black">FinTrack</span>
+                <span class="hidden text-[11px] font-semibold text-white/55 sm:block">Personal finance cockpit</span>
+            </div>
+        </a>
+
+        <div class="flex items-center gap-2">
+            {% if user.is_authenticated %}
+                <div class="hidden items-center gap-1 md:flex">
+                    <a href="{% url 'dashboard_view' %}" class="rounded-lg px-3 py-2 text-sm font-bold text-white/75 hover:bg-white/10 hover:text-white">Dashboard</a>
+                    <a href="{% url 'record_list' %}" class="rounded-lg px-3 py-2 text-sm font-bold text-white/75 hover:bg-white/10 hover:text-white">History</a>
+                    <a href="{% url 'profile_view' user.pk %}" class="rounded-lg px-3 py-2 text-sm font-bold text-white/75 hover:bg-white/10 hover:text-white">Profile</a>
+                </div>
+                <a href="{% url 'logout' %}" class="btn btn-sm border-white/20 bg-white/10 text-white hover:bg-white hover:text-[#17211b]">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-sm bg-[#d8f3dc] text-[#17211b] hover:bg-white">Login</a>
+            {% endif %}
         </div>
-        <span class="font-black text-xl tracking-tight text-slate-900">FinTrack</span>
-    </div>
-    
-    <div class="flex items-center gap-4">
-        {% if user.is_authenticated %}
-        <ul class="flex items-center gap-2 mr-4">
-            <li>
-                <a href="{% url 'dashboard_view' %}" class="btn btn-ghost btn-sm text-slate-600 hover:text-blue-600 transition-colors uppercase font-black text-[10px] tracking-widest">Dashboard</a>
-            </li>
-            <li>
-                <a href="{% url 'record_list' %}" class="btn btn-ghost btn-sm text-slate-600 hover:text-blue-600 transition-colors uppercase font-black text-[10px] tracking-widest">History</a>
-            </li>
-            <li>
-                <a href="{% url 'profile_view' user.pk %}" class="btn btn-ghost btn-sm text-slate-600 hover:text-blue-600 transition-colors uppercase font-black text-[10px] tracking-widest">Profile</a>
-            </li>
-        </ul>
-        <a href="{% url 'logout' %}" class="btn btn-error btn-sm btn-outline px-6">Logout</a>
-        {% else %}
-        <a href="{% url 'login' %}" class="btn btn-primary btn-sm px-6">Login</a>
-        {% endif %}
     </div>
 </nav>

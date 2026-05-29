@@ -1,23 +1,22 @@
-<div class="space-y-6">
+<div class="space-y-5">
     {% for item in limits %}
-    <div class="space-y-2">
-        <div class="flex justify-between items-center text-sm">
-            <span class="font-bold text-slate-700 uppercase tracking-tighter">{{ item.category.name }}</span>
-            <div id="limit-display-{{ item.id }}" 
-                 hx-get="{% url 'update_limit' item.id %}" 
-                 hx-trigger="click" 
-                 class="cursor-pointer hover:bg-slate-50 px-2 py-1 rounded transition-colors text-slate-800 font-bold border-b-2 border-slate-100 border-dotted">
-                ₱{{ item.limit }}
+        <div class="space-y-2">
+            <div class="flex items-center justify-between gap-3 text-sm">
+                <span class="font-black text-[#17211b]">{{ item.category.name }}</span>
+                <button id="limit-display-{{ item.id }}"
+                        hx-get="{% url 'update_limit' item.id %}"
+                        hx-trigger="click"
+                        class="rounded-lg border border-[#ded9cb] bg-[#fbfaf6] px-2 py-1 text-xs font-black text-[#17211b]">
+                    &#8369;{{ item.limit }}
+                </button>
+            </div>
+            <div class="h-2.5 overflow-hidden rounded-full bg-[#e8e1d2]">
+                <div class="h-full {% if item.percent >= 100 %}bg-red-600{% elif item.percent >= 80 %}bg-[#b54708]{% else %}bg-[#0f766e]{% endif %}" style="width: {{ item.percent }}%"></div>
+            </div>
+            <div class="flex justify-between text-xs font-bold text-[#66736b]">
+                <span>Spent: &#8369;{{ item.spent }}</span>
+                <span>{{ item.percent|floatformat:0 }}% used</span>
             </div>
         </div>
-        <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-            <div class="h-full rounded-full transition-all duration-500 {% if item.percent >= 100 %}bg-red-500{% elif item.percent >= 80 %}bg-amber-400{% else %}bg-primary{% endif %}" 
-                 style="width: {{ item.percent }}%"></div>
-        </div>
-        <div class="flex justify-between text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-            <span>Spent: ₱{{ item.spent }}</span>
-            <span>{{ item.percent|floatformat:0 }}% used</span>
-        </div>
-    </div>
     {% endfor %}
 </div>

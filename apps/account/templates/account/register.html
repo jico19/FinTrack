@@ -1,13 +1,44 @@
+{% extends "base.html" %}
 
+{% block content %}
+<section class="mx-auto grid min-h-[calc(100vh-110px)] max-w-6xl items-center gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+    <div class="surface order-2 p-6 md:p-8 lg:order-1">
+        <div class="mb-8">
+            <h1 class="text-2xl font-black text-[#17211b]">Create your account</h1>
+            <p class="mt-1 text-sm font-medium text-[#66736b]">Start with a profile, then set budgets and record your first transaction.</p>
+        </div>
+        <form method="POST" class="space-y-5">
+            {% csrf_token %}
+            {% for field in form %}
+                <label class="block">
+                    <span class="mb-2 block text-xs font-black text-[#66736b]">{{ field.label }}</span>
+                    {{ field }}
+                    {% if field.help_text %}<span class="mt-1 block text-xs text-[#66736b]">{{ field.help_text|safe }}</span>{% endif %}
+                    {% if field.errors %}<span class="mt-1 block text-xs font-bold text-red-600">{{ field.errors|striptags }}</span>{% endif %}
+                </label>
+            {% endfor %}
+            <div class="flex flex-col gap-3 sm:flex-row">
+                <button type="submit" class="btn btn-primary flex-1">Create account</button>
+                <a href="{% url 'login' %}" class="btn flex-1 border-[#ded9cb] bg-transparent">Cancel</a>
+            </div>
+        </form>
+    </div>
 
-
-<h2>Register here.</h2>
-
-
-<form method="POST">
-    {% csrf_token %}
-    
-    {{ form.as_p }}
-    <button type="submit">submit</button>
-    <a href="{% url "login" %}">cancel</a>
-</form>
+    <div class="order-1 space-y-5 lg:order-2">
+        <div class="inline-flex rounded-full border border-[#ded9cb] bg-[#fffefa] px-3 py-1 text-xs font-black text-[#66736b]">
+            Built for daily financial habits
+        </div>
+        <h2 class="text-4xl font-black leading-tight text-[#17211b] md:text-6xl">A cleaner way to see where money goes.</h2>
+        <div class="grid gap-3 sm:grid-cols-2">
+            <div class="surface p-5">
+                <h3 class="font-black">Track faster</h3>
+                <p class="mt-2 text-sm font-medium leading-6 text-[#66736b]">Add income and expenses with category context.</p>
+            </div>
+            <div class="surface p-5">
+                <h3 class="font-black">Stay under limits</h3>
+                <p class="mt-2 text-sm font-medium leading-6 text-[#66736b]">See progress bars and warnings before overspending.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

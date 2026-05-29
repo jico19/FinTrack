@@ -1,17 +1,15 @@
-<div class="flex items-start gap-5 p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50">
-    <div class="shrink-0">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center p-2.5 shadow-lg shadow-emerald-200 transform -rotate-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-full w-full text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-        </div>
+<div class="flex items-start gap-4 rounded-lg border border-[#ded9cb] bg-[#fbfaf6] p-4">
+    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#d8f3dc] text-[#0f766e]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
     </div>
-    <div class="flex-1 space-y-2">
-        <div class="flex items-center gap-2">
-            <h4 class="font-black text-slate-800 text-xs uppercase tracking-widest">Minto's Strategic Advice</h4>
-            <span class="px-1.5 py-0.5 bg-emerald-500 text-[8px] font-black text-white rounded-md uppercase tracking-tighter">AI Insight</span>
+    <div class="flex-1">
+        <div class="mb-2 flex items-center gap-2">
+            <h4 class="text-xs font-black text-[#17211b]">Minto strategic advice</h4>
+            <span class="badge bg-[#0f766e] text-white">AI insight</span>
         </div>
-        <div class="prose prose-sm prose-slate max-w-none text-slate-600 font-semibold leading-relaxed">
+        <div class="prose prose-sm max-w-none font-medium leading-6 text-[#66736b]">
             {{ advice }}
         </div>
     </div>

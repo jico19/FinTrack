@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="dashboard-container" class="max-w-7xl mx-auto space-y-8 pb-12">
+<div id="dashboard-container" class="mx-auto max-w-7xl space-y-6 pb-12">
     <!-- F-11: Unusual Spending Alert -->
     {% if spike_warning %}
     <div class="alert alert-warning shadow-lg border-l-8 border-warning bg-amber-50 mb-4">
@@ -95,22 +95,23 @@
     </div>
 
     <!-- F-07: Headers -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight uppercase">Dashboard</h1>
-            <div class="flex items-center gap-4 mt-1">
-                <p class="text-gray-500 text-sm font-medium">Monthly summary for {{ now|date:"F Y" }}</p>
+            <p class="text-xs font-black text-[#66736b]">Financial cockpit</p>
+            <h1 class="mt-1 text-4xl font-black text-[#17211b]">Dashboard</h1>
+            <div class="mt-2 flex flex-wrap items-center gap-3">
+                <p class="text-sm font-medium text-[#66736b]">Monthly summary for {{ now|date:"F Y" }}</p>
                 <div class="flex items-center gap-2">
-                    <span class="badge badge-warning gap-1 font-black text-[10px] uppercase">{{ user.userprofile.total_points }} pts</span>
-                    <span class="badge {% if display_streak > 0 %}badge-error{% else %}badge-ghost bg-slate-100 text-slate-400{% endif %} gap-1 font-black text-[10px] uppercase">
+                    <span class="badge bg-[#fff4cc] text-[#b54708]">{{ user.userprofile.total_points }} pts</span>
+                    <span class="badge {% if display_streak > 0 %}bg-[#fee4e2] text-[#b42318]{% else %}bg-[#f1eee5] text-[#66736b]{% endif %}">
                         {{ display_streak }} day streak
                     </span>
                 </div>
             </div>
         </div>
         <div class="flex gap-3 w-full md:w-auto">
-            <a href="{% url 'manage_budgets' %}" class="btn btn-ghost border-slate-200 w-full md:w-auto font-black tracking-widest uppercase text-xs">Manage Budgets</a>
-            <button class="btn btn-primary shadow-lg w-full md:w-auto font-black tracking-widest uppercase" onclick="add_record_modal.showModal()">Add Record</button>
+            <a href="{% url 'manage_budgets' %}" class="btn border-[#ded9cb] bg-transparent w-full md:w-auto">Manage budgets</a>
+            <button class="btn btn-primary w-full md:w-auto" onclick="add_record_modal.showModal()">Add record</button>
         </div>
     </div>
 
@@ -267,15 +268,15 @@
 
     <!-- Modals -->
     <dialog id="add_record_modal" class="modal">
-        <div class="modal-box bg-white rounded-2xl border border-slate-100 shadow-2xl">
-            <div class="flex justify-between items-center mb-6"><h3 class="font-black text-xl text-slate-800 tracking-tight uppercase">New Transaction</h3><form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form></div>
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-black text-[#17211b]">New transaction</h3><form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">x</button></form></div>
             <div id="add-record-form-container" hx-get="{% url 'add_record' %}" hx-trigger="load"><div class="flex justify-center p-8"><span class="loading loading-spinner loading-md"></span></div></div>
         </div>
         <form method="dialog" class="modal-backdrop bg-slate-900/30 backdrop-blur-sm"><button>close</button></form>
     </dialog>
     <dialog id="edit_record_modal" class="modal">
-        <div class="modal-box bg-white rounded-2xl border border-slate-100 shadow-2xl">
-            <div class="flex justify-between items-center mb-6"><h3 class="font-black text-xl text-slate-800 tracking-tight uppercase">Edit Transaction</h3><form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form></div>
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-black text-[#17211b]">Edit transaction</h3><form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">x</button></form></div>
             <div id="edit-record-form-container"><div class="flex justify-center p-8"><span class="loading loading-spinner loading-md"></span></div></div>
         </div>
         <form method="dialog" class="modal-backdrop bg-slate-900/30 backdrop-blur-sm"><button>close</button></form>
@@ -295,7 +296,7 @@
                         type: 'bar',
                         data: {
                             labels: JSON.parse(catEl.getAttribute('data-labels') || '[]'),
-                            datasets: [{ data: JSON.parse(catEl.getAttribute('data-values') || '[]'), backgroundColor: '#3b82f6', borderRadius: 6 }]
+                            datasets: [{ data: JSON.parse(catEl.getAttribute('data-values') || '[]'), backgroundColor: '#0f766e', borderRadius: 6 }]
                         },
                         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
                     });
@@ -307,7 +308,7 @@
                         type: 'doughnut',
                         data: {
                             labels: JSON.parse(nwsEl.getAttribute('data-labels') || '[]'),
-                            datasets: [{ data: JSON.parse(nwsEl.getAttribute('data-values') || '[]'), backgroundColor: ['#3b82f6', '#fbbf24', '#22c55e'], borderWidth: 0 }]
+                            datasets: [{ data: JSON.parse(nwsEl.getAttribute('data-values') || '[]'), backgroundColor: ['#0f766e', '#b54708', '#167647'], borderWidth: 0 }]
                         },
                         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold', size: 11 } } } }, cutout: '70%' }
                     });
@@ -317,13 +318,13 @@
                 if (trendEl) {
                     const ctx = trendEl.getContext('2d');
                     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
-                    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                    gradient.addColorStop(0, 'rgba(15, 118, 110, 0.22)');
+                    gradient.addColorStop(1, 'rgba(15, 118, 110, 0)');
                     window.trendChartObj = new Chart(trendEl, {
                         type: 'line',
                         data: {
                             labels: JSON.parse(trendEl.getAttribute('data-labels') || '[]'),
-                            datasets: [{ label: 'Daily Spending', data: JSON.parse(trendEl.getAttribute('data-values') || '[]'), borderColor: '#3b82f6', backgroundColor: gradient, fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: '#3b82f6', pointBorderWidth: 2 }]
+                            datasets: [{ label: 'Daily Spending', data: JSON.parse(trendEl.getAttribute('data-values') || '[]'), borderColor: '#0f766e', backgroundColor: gradient, fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: '#0f766e', pointBorderWidth: 2 }]
                         },
                         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } }
                     });

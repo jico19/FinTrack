@@ -1,74 +1,44 @@
-<div class="flex flex-col h-[550px] bg-white">
-    <!-- Header: Premium Gradient -->
-    <div class="flex items-center justify-between mb-8 p-1">
-        <div class="flex items-center gap-4">
-            <div class="relative">
-                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-100 transform -rotate-3 transition-transform duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                </div>
-                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-50">
-                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                </div>
+<div class="flex h-[550px] flex-col">
+    <header class="mb-5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-[#d8f3dc] text-[#0f766e]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
             </div>
             <div>
-                <h4 class="font-black text-slate-800 text-base uppercase tracking-tight">Minto</h4>
-                <div class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Financial Intelligence</p>
-                </div>
+                <h4 class="font-black text-[#17211b]">Minto</h4>
+                <p class="text-xs font-bold text-[#66736b]">Financial assistant</p>
             </div>
         </div>
-        <form hx-post="{% url 'clear_chat' %}" hx-target="#chat-messages-container" hx-confirm="Reset our conversation?">
+        <form hx-post="{% url 'clear_chat' %}" hx-target="#chat-messages-container" hx-confirm="Reset this conversation?">
             {% csrf_token %}
-            <button type="submit" class="btn btn-ghost btn-xs text-slate-300 hover:text-red-400 font-black uppercase tracking-widest text-[9px] transition-colors">Reset</button>
+            <button type="submit" class="btn btn-xs border-[#ded9cb] bg-transparent">Reset</button>
         </form>
-    </div>
+    </header>
 
-    <!-- Messages Area: Modern spacing and custom scrollbar -->
-    <div id="chat-messages-container" class="flex-1 overflow-y-auto mb-6 space-y-6 pr-2 custom-scrollbar scroll-smooth">
+    <div id="chat-messages-container" class="custom-scrollbar flex-1 space-y-4 overflow-y-auto pr-2">
         {% include "AI/chat_messages_partial.html" %}
     </div>
 
-    <!-- Input Area: Floating glassmorphism style -->
-    <div class="pt-2">
-        <form hx-post="{% url 'send_message' %}" 
-              hx-target="#chat-messages-container" 
-              hx-indicator="#chat-indicator"
-              hx-on::after-request="this.reset()"
-              class="relative">
-            {% csrf_token %}
-            <input type="text" name="message" id="chat-input" 
-                   placeholder="Ask Minto about your spending..." 
-                   class="input w-full bg-slate-50 border-slate-100 font-bold text-slate-700 pr-14 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 text-sm h-14 rounded-2xl shadow-inner transition-all placeholder:text-slate-300">
-            
-            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 btn btn-emerald-500 hover:bg-emerald-600 border-none btn-sm btn-square rounded-xl shadow-lg shadow-emerald-200 text-white transition-all active:scale-90">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-            </button>
-
-            <!-- Loading Indicator: Sleek minimalist -->
-            <div id="chat-indicator" class="htmx-indicator absolute -top-10 left-0 right-0 flex justify-center">
-                <div class="bg-slate-800 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-xl flex items-center gap-2 border border-slate-700">
-                    <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce"></span>
-                    Minto is analyzing data
-                </div>
-            </div>
-        </form>
-        <p class="text-center text-[9px] text-slate-300 font-bold uppercase tracking-[0.2em] mt-4">Powered by FinTrack Intelligence</p>
-    </div>
+    <form hx-post="{% url 'send_message' %}"
+          hx-target="#chat-messages-container"
+          hx-indicator="#chat-indicator"
+          hx-on::after-request="this.reset()"
+          class="relative mt-5">
+        {% csrf_token %}
+        <input type="text" name="message" id="chat-input" placeholder="Ask about spending, budgets, or goals" class="input w-full pr-24 font-bold">
+        <button type="submit" class="btn btn-primary absolute right-1 top-1/2 h-10 min-h-10 -translate-y-1/2 px-4">Send</button>
+        <div id="chat-indicator" class="htmx-indicator absolute -top-9 left-0 right-0 text-center text-xs font-black text-[#66736b]">
+            Minto is analyzing your data...
+        </div>
+    </form>
 </div>
 
 <style>
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #f1f5f9; border-radius: 20px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #e2e8f0; }
-    
-    .btn-emerald-500 { background-color: #10b981; }
-    .btn-emerald-500:hover { background-color: #059669; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #ded9cb; border-radius: 20px; }
 </style>
 
 <script>
@@ -76,21 +46,14 @@
         const container = document.getElementById('chat-messages-container');
         if (container) container.innerHTML = '';
     });
-    
+
     function scrollToBottom() {
         const container = document.getElementById('chat-messages-container');
-        if (container) {
-            container.scrollTo({
-                top: container.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
+        if (container) container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     }
 
     scrollToBottom();
     const observer = new MutationObserver(scrollToBottom);
     const msgContainer = document.getElementById('chat-messages-container');
-    if (msgContainer) {
-        observer.observe(msgContainer, { childList: true });
-    }
+    if (msgContainer) observer.observe(msgContainer, { childList: true });
 </script>

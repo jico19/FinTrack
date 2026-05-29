@@ -1,63 +1,37 @@
-<tr id="record-row-{{ record.id }}" class="hover:bg-slate-50/80 transition-all group border-b border-slate-50 last:border-0">
-    <!-- Date Cell -->
-    <td class="py-5 px-8">
-        <div class="flex flex-col">
-            <span class="text-xs font-black text-slate-800 uppercase tracking-tighter">{{ record.date|date:"M d" }}</span>
-            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ record.date|date:"Y" }}</span>
-        </div>
+<tr id="record-row-{{ record.id }}" class="group hover:bg-[#f7f5ef]">
+    <td class="px-8 py-5">
+        <span class="block text-sm font-black text-[#17211b]">{{ record.date|date:"M d" }}</span>
+        <span class="text-xs font-bold text-[#66736b]">{{ record.date|date:"Y" }}</span>
     </td>
-
-    <!-- Category & Type Cell -->
     <td class="py-5">
         <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm 
-                {% if record.spending_type == 'INCOME' %}bg-green-50 text-green-600{% else %}bg-slate-50 text-slate-600{% endif %}">
-                {% if record.spending_type == 'INCOME' %}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" /></svg>
-                {% else %}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5-5v12" /></svg>
-                {% endif %}
-            </div>
-            <div>
-                <span class="block text-sm font-black text-slate-800 tracking-tight leading-none mb-1">{{ record.category.name }}</span>
-                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest 
-                    {% if record.category.classification == 'Need' %}bg-blue-50 text-blue-600{% elif record.category.classification == 'Want' %}bg-amber-50 text-amber-600{% else %}bg-green-50 text-green-600{% endif %}">
-                    {{ record.category.classification }}
-                </span>
-            </div>
+            <span class="flex h-9 w-9 items-center justify-center rounded-lg {% if record.spending_type == 'INCOME' %}bg-green-50 text-green-700{% else %}bg-[#f1eee5] text-[#66736b]{% endif %}">
+                {% if record.spending_type == 'INCOME' %}+{% else %}-{% endif %}
+            </span>
+            <span>
+                <span class="block text-sm font-black text-[#17211b]">{{ record.category.name }}</span>
+                <span class="badge bg-[#e5f4ee] text-[#0f766e]">{{ record.category.classification }}</span>
+            </span>
         </div>
     </td>
-
-    <!-- Memo/Note Cell -->
     <td class="py-5">
-        <p class="text-sm font-medium text-slate-500 max-w-[200px] truncate">{{ record.note|default:"—" }}</p>
+        <p class="max-w-[220px] truncate text-sm font-medium text-[#66736b]">{{ record.note|default:"-" }}</p>
     </td>
-
-    <!-- Amount & Actions Cell -->
-    <td class="py-5 px-8">
-        <div class="flex items-center justify-end gap-6">
-            <div class="text-right">
-                <span class="block text-base font-black tracking-tight 
-                    {% if record.spending_type == 'INCOME' %}text-green-600{% else %}text-slate-800{% endif %}">
-                    {% if record.spending_type == 'INCOME' %}+{% else %}-{% endif %}₱{{ record.amount }}
-                </span>
-            </div>
-            
-            <!-- Hidden Actions (reveal on hover) -->
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
-                <button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+    <td class="px-8 py-5">
+        <div class="flex items-center justify-end gap-4">
+            <span class="text-base font-black {% if record.spending_type == 'INCOME' %}text-green-700{% else %}text-[#17211b]{% endif %}">
+                {% if record.spending_type == 'INCOME' %}+{% else %}-{% endif %}&#8369;{{ record.amount }}
+            </span>
+            <div class="flex gap-1 opacity-100 md:opacity-0 md:transition group-hover:opacity-100">
+                <button class="btn btn-xs border-[#ded9cb] bg-transparent"
                         onclick="edit_record_modal.showModal()"
                         hx-get="{% url 'edit_record' record.id %}"
-                        hx-target="#edit-record-form-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                </button>
-                <button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                        hx-target="#edit-record-form-container">Edit</button>
+                <button class="btn btn-xs border-red-200 bg-red-50 text-red-700"
                         hx-post="{% url 'delete_record' record.id %}"
                         hx-confirm="Permanently delete this transaction?"
                         hx-target="#record-row-{{ record.id }}"
-                        hx-swap="outerHTML">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </button>
+                        hx-swap="outerHTML">Delete</button>
             </div>
         </div>
     </td>
